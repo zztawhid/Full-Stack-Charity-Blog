@@ -1,0 +1,9 @@
+<%- include('partials/header') %>
+
+<section class="error-page">
+  <h1>Error</h1>
+  <p><%= typeof message !== 'undefined' ? message : 'An unexpected error occurred.' %></p>
+  <a href="/" class="btn">Go Home</a>
+</section>
+
+<%- include('partials/footer') %>

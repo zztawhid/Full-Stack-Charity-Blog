@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+
+<section>
+  <h1>Newsletter Management</h1>
+  <p><a href="/admin">&larr; Back to Dashboard</a></p>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert alert-error">
+      <ul>
+        <% errors.forEach(err => { %>
+          <li><%= err %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <h2>Create Newsletter</h2>
+  <form method="POST" action="/admin/newsletter" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" required maxlength="200">
+    </div>
+
+    <div class="form-group">
+      <label for="content">Content</label>
+      <textarea id="content" name="content" rows="8" required></textarea>
+    </div>
+
+    <button type="submit" class="btn">Publish &amp; Send</button>
+  </form>
+
+  <hr>
+
+  <h2>Past Newsletters</h2>
+  <% if (newsletters.length === 0) { %>
+    <p>No newsletters yet.</p>
+  <% } else { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% newsletters.forEach(nl => { %>
+          <tr>
+            <td><%= nl.id %></td>
+            <td><%= nl.title %></td>
+            <td><%= new Date(nl.created_at).toLocaleString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

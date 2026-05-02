@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+
+<section>
+  <h1>Manage Posts</h1>
+  <p><a href="/admin">&larr; Back to Dashboard</a></p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Pet</th>
+        <th>Author</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% posts.forEach(p => { %>
+        <tr>
+          <td><%= p.id %></td>
+          <td><a href="/blog/<%= p.id %>"><%= p.title %></a></td>
+          <td><%= p.pet_name || '-' %></td>
+          <td><%= p.username %></td>
+          <td><%= new Date(p.created_at).toLocaleDateString() %></td>
+          <td class="action-buttons">
+            <a href="/blog/<%= p.id %>/edit" class="btn btn-tiny">Edit</a>
+            <form method="POST" action="/admin/posts/<%= p.id %>/delete" style="display:inline;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-tiny btn-danger"
+                      onclick="return confirm('Delete this post?')">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+
+<%- include('../partials/footer') %>

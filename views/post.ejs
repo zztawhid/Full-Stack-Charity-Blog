@@ -1,0 +1,90 @@
+<%- include('partials/header') %>
+
+<section class="post-detail">
+  <article>
+    <h1><%= post.title %></h1>
+    <p class="post-meta">
+      By <%= post.username %> &middot; <%= new Date(post.created_at).toLocaleDateString() %>
+      <% if (post.updated_at && post.updated_at !== post.created_at) { %>
+        &middot; Updated <%= new Date(post.updated_at).toLocaleDateString() %>
+      <% } %>
+    </p>
+
+    <% if (post.pet_name) { %>
+      <p class="pet-info">
+        <strong>Pet:</strong> <%= post.pet_name %>
+        <% if (post.pet_species) { %> (<%= post.pet_species %>)<% } %>
+      </p>
+    <% } %>
+
+    <% if (post.image_filename) { %>
+      <img src="/uploads/<%= post.image_filename %>" alt="<%= post.pet_name || 'Pet' %>" class="post-image">
+    <% } %>
+
+    <div class="post-content">
+      <%- post.content.replace(/\n/g, '<br>') %>
+    </div>
+
+    <% if (post.donation_pool_enabled) { %>
+      <div class="donation-box">
+        <p><strong>Donation Pool:</strong> &pound;<%= (donationTotal / 100).toFixed(2) %> raised</p>
+        <% if (user) { %>
+          <a href="/donations" class="btn btn-small">Donate to this animal</a>
+        <% } else { %>
+          <p><a href="/auth/login">Log in</a> to donate.</p>
+        <% } %>
+      </div>
+    <% } %>
+
+    <% if (user && (user.id === post.user_id || user.role === 'admin')) { %>
+      <div class="post-actions">
+        <a href="/blog/<%= post.id %>/edit" class="btn btn-small">Edit</a>
+        <form method="POST" action="/blog/<%= post.id %>/delete" style="display:inline;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Delete this post?')">Delete</button>
+        </form>
+      </div>
+    <% } %>
+  </article>
+
+  <hr>
+
+  <section class="comments-section">
+    <h2>Comments (<%= comments.length %>)</h2>
+
+    <% if (user) { %>
+      <form method="POST" action="/blog/<%= post.id %>/comment" class="form comment-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="form-group">
+          <label for="content">Add a comment</label>
+          <textarea id="content" name="content" rows="3" required maxlength="2000"></textarea>
+        </div>
+        <button type="submit" class="btn btn-small">Post Comment</button>
+      </form>
+    <% } else { %>
+      <p><a href="/auth/login">Log in</a> to leave a comment.</p>
+    <% } %>
+
+    <% if (comments.length === 0) { %>
+      <p>No comments yet.</p>
+    <% } else { %>
+      <% comments.forEach(comment => { %>
+        <div class="comment">
+          <p class="comment-meta">
+            <strong><%= comment.username %></strong> &middot;
+            <%= new Date(comment.created_at).toLocaleDateString() %>
+          </p>
+          <p class="comment-content"><%= comment.content %></p>
+          <% if (user && (user.id === comment.user_id || user.role === 'admin')) { %>
+            <form method="POST" action="/blog/<%= post.id %>/comment/<%= comment.id %>/delete" style="display:inline;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-tiny btn-danger" onclick="return confirm('Delete this comment?')">Delete</button>
+            </form>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+  </section>
+</section>
+
+<%- include('partials/footer') %>

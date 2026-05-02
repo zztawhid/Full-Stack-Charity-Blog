@@ -1,0 +1,35 @@
+<%- include('partials/header') %>
+
+<section class="form-page">
+  <h1>Set Up Two-Factor Authentication</h1>
+  <p>Scan the QR code below with your authenticator app (e.g. Google Authenticator, Authy), then enter the 6-digit code to confirm setup.</p>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert alert-error">
+      <ul>
+        <% errors.forEach(err => { %>
+          <li><%= err %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <div class="mfa-setup">
+    <img src="<%= qrDataUrl %>" alt="TOTP QR Code" class="qr-code">
+    <p class="mfa-manual">Can't scan? Enter this secret manually: <code><%= totpSecret %></code></p>
+  </div>
+
+  <form method="POST" action="/auth/verify-mfa-setup" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-group">
+      <label for="token">6-Digit Code</label>
+      <input type="text" id="token" name="token" required maxlength="6" pattern="[0-9]{6}"
+             placeholder="000000" autocomplete="off">
+    </div>
+
+    <button type="submit" class="btn">Verify &amp; Complete Registration</button>
+  </form>
+</section>
+
+<%- include('partials/footer') %>

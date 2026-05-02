@@ -1,0 +1,63 @@
+<%- include('../partials/header') %>
+
+<section>
+  <h1>Manage Users</h1>
+  <p><a href="/admin">&larr; Back to Dashboard</a></p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Failed Attempts</th>
+        <th>Locked</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(u => { %>
+        <tr>
+          <td><%= u.id %></td>
+          <td><%= u.username %></td>
+          <td><%= u.email %></td>
+          <td><%= u.role %></td>
+          <td><%= u.failed_attempts %></td>
+          <td><%= u.locked_until && new Date(u.locked_until) > new Date() ? 'YES' : 'No' %></td>
+          <td><%= new Date(u.created_at).toLocaleDateString() %></td>
+          <td class="action-buttons">
+            <!-- Toggle Role -->
+            <form method="POST" action="/admin/users/<%= u.id %>/role" style="display:inline;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="role" value="<%= u.role === 'admin' ? 'user' : 'admin' %>">
+              <button type="submit" class="btn btn-tiny">
+                <%= u.role === 'admin' ? 'Demote' : 'Promote' %>
+              </button>
+            </form>
+
+            <!-- Unlock -->
+            <% if (u.locked_until && new Date(u.locked_until) > new Date()) { %>
+              <form method="POST" action="/admin/users/<%= u.id %>/unlock" style="display:inline;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-tiny">Unlock</button>
+              </form>
+            <% } %>
+
+            <!-- Delete -->
+            <% if (u.id !== user.id) { %>
+              <form method="POST" action="/admin/users/<%= u.id %>/delete" style="display:inline;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-tiny btn-danger"
+                        onclick="return confirm('Delete user <%= u.username %>? This cannot be undone.')">Delete</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+
+<%- include('../partials/footer') %>

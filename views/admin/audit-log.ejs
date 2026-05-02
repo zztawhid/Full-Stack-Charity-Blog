@@ -1,0 +1,36 @@
+<%- include('../partials/header') %>
+
+<section>
+  <h1>Audit Log</h1>
+  <p><a href="/admin">&larr; Back to Dashboard</a></p>
+  <p>Showing the most recent 200 admin actions.</p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Admin</th>
+        <th>Action</th>
+        <th>Target Type</th>
+        <th>Target ID</th>
+        <th>IP Address</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% logs.forEach(log => { %>
+        <tr>
+          <td><%= log.id %></td>
+          <td><%= log.username || 'Unknown' %></td>
+          <td><%= log.action %></td>
+          <td><%= log.target_type || '-' %></td>
+          <td><%= log.target_id || '-' %></td>
+          <td><%= log.ip_address || '-' %></td>
+          <td><%= new Date(log.timestamp).toLocaleString() %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+
+<%- include('../partials/footer') %>

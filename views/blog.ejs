@@ -1,0 +1,59 @@
+<%- include('partials/header') %>
+
+<section>
+  <div class="page-header">
+    <h1>
+      <% if (typeof isSearch !== 'undefined' && isSearch) { %>
+        Search results for &ldquo;<%= searchQuery %>&rdquo;
+      <% } else { %>
+        The Blog
+      <% } %>
+    </h1>
+    <% if (user) { %>
+      <a href="/blog/create" class="btn">+ New Post</a>
+    <% } %>
+  </div>
+
+  <form class="search-form" method="GET" action="/blog/search">
+    <input
+      type="text"
+      name="q"
+      placeholder="Search posts..."
+      value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+      maxlength="200"
+      autocomplete="off"
+    >
+    <button type="submit" class="btn btn-search">Search</button>
+    <% if (typeof isSearch !== 'undefined' && isSearch) { %>
+      <a href="/blog" class="btn-clear-search">clear</a>
+    <% } %>
+  </form>
+
+  <% if (posts.length === 0) { %>
+    <p class="no-results">
+      <% if (typeof isSearch !== 'undefined' && isSearch) { %>
+        No posts matched &ldquo;<%= searchQuery %>&rdquo;. <a href="/blog">See all posts.</a>
+      <% } else { %>
+        No blog posts yet.
+      <% } %>
+    </p>
+  <% } else { %>
+    <div class="post-list">
+      <% posts.forEach(post => { %>
+        <div class="post-item">
+          <div class="post-item-meta">
+            <span class="post-date"><%= new Date(post.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+            <% if (post.pet_name) { %>
+              &mdash; <span class="post-pet"><%= post.pet_name %><% if (post.pet_species) { %> (<%= post.pet_species %>)<% } %></span>
+            <% } %>
+          </div>
+          <h2 class="post-item-title"><a href="/blog/<%= post.id %>"><%= post.title %></a></h2>
+          <p class="post-item-excerpt"><%= post.excerpt %>...</p>
+          <p class="post-item-author">Posted by <strong><%= post.username %></strong></p>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

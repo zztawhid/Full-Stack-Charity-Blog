@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+
+<section>
+  <h1>Newsletter</h1>
+
+  <% if (user) { %>
+    <div class="newsletter-toggle">
+      <p>You are currently <strong><%= isOptedIn ? 'subscribed' : 'not subscribed' %></strong> to the newsletter.</p>
+      <form method="POST" action="/newsletter/toggle">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn btn-small">
+          <%= isOptedIn ? 'Unsubscribe' : 'Subscribe' %>
+        </button>
+      </form>
+    </div>
+  <% } else { %>
+    <p><a href="/auth/login">Log in</a> to subscribe to our newsletter.</p>
+  <% } %>
+
+  <hr>
+
+  <h2>Past Newsletters</h2>
+  <% if (newsletters.length === 0) { %>
+    <p>No newsletters have been published yet.</p>
+  <% } else { %>
+    <% newsletters.forEach(nl => { %>
+      <article class="newsletter-item">
+        <h3><%= nl.title %></h3>
+        <p class="post-meta">By <%= nl.author || 'Admin' %> &middot; <%= new Date(nl.created_at).toLocaleDateString() %></p>
+        <div class="newsletter-content"><%- nl.content.replace(/\n/g, '<br>') %></div>
+      </article>
+    <% }) %>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,67 @@
+<%- include('partials/header') %>
+
+<section class="form-page">
+  <h1>Edit Post</h1>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert alert-error">
+      <ul>
+        <% errors.forEach(err => { %>
+          <li><%= err %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <form method="POST" action="/blog/<%= post.id %>/edit?_csrf=<%= csrfToken %>" enctype="multipart/form-data" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-group">
+      <label for="title">Post Title</label>
+      <input type="text" id="title" name="title" required maxlength="200"
+             value="<%= post.title %>">
+    </div>
+
+    <div class="form-group">
+      <label for="content">Content</label>
+      <textarea id="content" name="content" rows="10" required><%= post.content %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="pet_name">Pet Name (optional)</label>
+      <input type="text" id="pet_name" name="pet_name" maxlength="100"
+             value="<%= post.pet_name || '' %>">
+    </div>
+
+    <div class="form-group">
+      <label for="pet_species">Pet Species (optional)</label>
+      <input type="text" id="pet_species" name="pet_species" maxlength="50"
+             value="<%= post.pet_species || '' %>">
+    </div>
+
+    <% if (post.image_filename) { %>
+      <div class="form-group">
+        <p>Current image:</p>
+        <img src="/uploads/<%= post.image_filename %>" alt="Current pet image" style="max-width:200px;">
+      </div>
+    <% } %>
+
+    <div class="form-group">
+      <label for="image">Replace Image (optional, JPEG/PNG/GIF, max 5 MB)</label>
+      <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/gif">
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" name="donation_pool_enabled"
+               <%= post.donation_pool_enabled ? 'checked' : '' %>>
+        Enable donation pool for this animal
+      </label>
+    </div>
+
+    <button type="submit" class="btn">Update Post</button>
+    <a href="/blog/<%= post.id %>" class="btn btn-secondary">Cancel</a>
+  </form>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+
+<section>
+  <h1>Admin Dashboard</h1>
+
+  <div class="admin-nav">
+    <a href="/admin/users" class="btn btn-small">Manage Users</a>
+    <a href="/admin/posts" class="btn btn-small">Manage Posts</a>
+    <a href="/admin/newsletter" class="btn btn-small">Newsletter</a>
+    <a href="/admin/audit-log" class="btn btn-small">Audit Log</a>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Users</h3>
+      <p class="stat-number"><%= stats.users %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Posts</h3>
+      <p class="stat-number"><%= stats.posts %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Donations</h3>
+      <p class="stat-number">&pound;<%= (stats.donations / 100).toFixed(2) %></p>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

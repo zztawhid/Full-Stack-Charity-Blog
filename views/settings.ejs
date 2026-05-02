@@ -1,0 +1,86 @@
+<%- include('partials/header') %>
+
+<section class="form-page">
+  <h1>Account Settings</h1>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert alert-error">
+      <ul>
+        <% errors.forEach(err => { %>
+          <li><%= err %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <div class="settings-info">
+    <p><strong>Username:</strong> <%= profile.username %></p>
+    <p><strong>Email:</strong> <%= profile.email %></p>
+  </div>
+
+  <hr>
+
+  <!-- Change Password -->
+  <h2>Change Password</h2>
+  <p class="settings-note">You must enter your current password to verify your identity.</p>
+  <form method="POST" action="/settings/change-password" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-group">
+      <label for="currentPassword">Current Password</label>
+      <input type="password" id="currentPassword" name="currentPassword" required>
+    </div>
+
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input type="password" id="newPassword" name="newPassword" required minlength="8">
+      <small>Min 8 characters, 1 uppercase, 1 number, 1 symbol</small>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmNewPassword">Confirm New Password</label>
+      <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+    </div>
+
+    <button type="submit" class="btn">Change Password</button>
+  </form>
+
+  <hr>
+
+  <!-- Change Email -->
+  <h2>Change Email</h2>
+  <p class="settings-note">You must enter your current password to verify your identity.</p>
+  <form method="POST" action="/settings/change-email" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-group">
+      <label for="currentPasswordEmail">Current Password</label>
+      <input type="password" id="currentPasswordEmail" name="currentPassword" required>
+    </div>
+
+    <div class="form-group">
+      <label for="newEmail">New Email</label>
+      <input type="email" id="newEmail" name="newEmail" required>
+    </div>
+
+    <button type="submit" class="btn">Change Email</button>
+  </form>
+
+  <hr>
+
+  <!-- Delete Account -->
+  <h2>Delete Account</h2>
+  <p class="settings-note warning-text">This action is permanent and cannot be undone. All your posts, comments, and data will be removed.</p>
+  <form method="POST" action="/settings/delete-account" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-group">
+      <label for="currentPasswordDelete">Current Password</label>
+      <input type="password" id="currentPasswordDelete" name="currentPassword" required>
+    </div>
+
+    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure? This cannot be undone.')">Delete My Account</button>
+  </form>
+</section>
+
+<%- include('partials/footer') %>

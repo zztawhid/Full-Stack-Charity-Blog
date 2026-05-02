@@ -1,0 +1,179 @@
+<%- include('partials/header') %>
+
+<section>
+  <h1>Donate</h1>
+  <p>Support our animal charity. All donations go directly to animal care and welfare.</p>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert alert-error">
+      <ul>
+        <% errors.forEach(err => { %>
+          <li><%= err %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <div class="donation-form-container">
+    <form id="donation-form" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="form-group">
+        <label for="amount">Donation Amount (&pound;)</label>
+        <input type="number" id="amount" name="amount" min="0.50" max="10000" step="0.01" required
+               placeholder="5.00">
+        <small>Min &pound;0.50, Max &pound;10,000</small>
+      </div>
+
+      <div class="form-group">
+        <label for="type">Donation Type</label>
+        <select id="type" name="type" required>
+          <option value="one-off">One-off</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="post_id">Donate to a specific animal (optional)</label>
+        <select id="post_id" name="post_id">
+          <option value="">General Fund</option>
+          <% posts.forEach(p => { %>
+            <option value="<%= p.id %>"><%= p.pet_name || p.title %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="card-element">Card Details</label>
+        <div id="card-element" class="card-element"></div>
+        <div id="card-errors" class="alert alert-error" style="display:none;"></div>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn">Donate</button>
+      <div id="donation-status" style="display:none;"></div>
+    </form>
+  </div>
+
+  <hr>
+
+  <h2>Your Donation History</h2>
+  <% if (donations.length === 0) { %>
+    <p>You haven't made any donations yet.</p>
+  <% } else { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Type</th>
+          <th>For</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% donations.forEach(d => { %>
+          <tr>
+            <td><%= new Date(d.created_at).toLocaleDateString() %></td>
+            <td>&pound;<%= (d.amount / 100).toFixed(2) %></td>
+            <td><%= d.type %></td>
+            <td><%= d.post_title || 'General Fund' %></td>
+            <td class="status-<%= d.status %>"><%= d.status %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</section>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script nonce="<%= cspNonce %>">
+  // Stripe Elements setup — card details are collected by Stripe.js
+  // and NEVER touch our server. Only the payment intent is created server-side.
+  const stripe = Stripe('<%= stripePublishableKey %>');
+  const elements = stripe.elements();
+  const cardElement = elements.create('card');
+  cardElement.mount('#card-element');
+
+  const form = document.getElementById('donation-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const statusDiv = document.getElementById('donation-status');
+  const errorsDiv = document.getElementById('card-errors');
+  const csrfToken = document.querySelector('[name="_csrf"]').value;
+
+  cardElement.on('change', function(event) {
+    if (event.error) {
+      errorsDiv.textContent = event.error.message;
+      errorsDiv.style.display = 'block';
+    } else {
+      errorsDiv.style.display = 'none';
+    }
+  });
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
+    statusDiv.style.display = 'none';
+
+    const amount = document.getElementById('amount').value;
+    const type = document.getElementById('type').value;
+    const postId = document.getElementById('post_id').value;
+
+    try {
+      // Create payment intent on our server
+      const response = await fetch('/donations/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ amount, type, post_id: postId || null, _csrf: csrfToken })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        errorsDiv.textContent = data.error;
+        errorsDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Donate';
+        return;
+      }
+
+      // Confirm the payment with Stripe.js
+      const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: { card: cardElement }
+      });
+
+      if (error) {
+        errorsDiv.textContent = error.message;
+        errorsDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Donate';
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        statusDiv.textContent = 'Donation successful! Thank you for your generosity.';
+        statusDiv.className = 'alert alert-success';
+        statusDiv.style.display = 'block';
+        form.reset();
+        cardElement.clear();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Donate';
+        // Reload after a moment to show updated history
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        statusDiv.textContent = 'Payment is being processed. You will be notified once complete.';
+        statusDiv.className = 'alert alert-success';
+        statusDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Donate';
+      }
+    } catch (err) {
+      errorsDiv.textContent = 'An error occurred. Please try again.';
+      errorsDiv.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Donate';
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

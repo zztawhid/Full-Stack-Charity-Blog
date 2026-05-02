@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+
+<div class="hero">
+  <h1>Welcome to the Animal Charity Blog</h1>
+  <p>Helping animals in need. Read about the pets we support, donate to their care, and join our community.</p>
+  <a href="/blog" class="btn">Browse all posts</a>
+</div>
+
+<section>
+  <h2>Recent Posts</h2>
+  <% if (posts.length === 0) { %>
+    <p>No posts yet. Be the first to share an animal's story!</p>
+  <% } else { %>
+    <div class="post-grid">
+      <% posts.forEach(post => { %>
+        <div class="post-card">
+          <% if (post.image_filename) { %>
+            <img src="/uploads/<%= post.image_filename %>" alt="<%= post.pet_name || 'Pet' %>" class="post-thumbnail">
+          <% } else { %>
+            <div class="post-thumbnail-placeholder">No photo</div>
+          <% } %>
+          <div class="post-card-body">
+            <h3><a href="/blog/<%= post.id %>"><%= post.title %></a></h3>
+            <% if (post.pet_name) { %>
+              <p class="post-meta"><em><%= post.pet_name %><% if (post.pet_species) { %>, <%= post.pet_species %><% } %></em></p>
+            <% } %>
+            <p class="post-excerpt"><%= post.excerpt %>...</p>
+            <p class="post-meta"><%= post.username %> &middot; <%= new Date(post.created_at).toLocaleDateString('en-GB') %></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>
