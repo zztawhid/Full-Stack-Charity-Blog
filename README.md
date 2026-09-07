@@ -1,4 +1,4 @@
-# Animal Charity Blog
+# Animal Charity Blog (Full Stack Charity Blog)
 
 A secure web-based animal charity blog system built with Node.js, Express, and PostgreSQL. Designed to demonstrate comprehensive security mitigations including MFA, encrypted database fields, CSRF protection, rate limiting, and more.
 
